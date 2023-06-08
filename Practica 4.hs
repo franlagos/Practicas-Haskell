@@ -78,8 +78,25 @@ formcrdlist xs = let n  = length xs
 type Rank = Int
 data Heap a = E | Node Rank a (Heap a) (Heap a) deriving Show
 
--- de heap a lista
+--rank :: Heap a -> Rank
+rank E = 0
+rank (Node r _ _ _ ) = r
 
+makeH x a b = if rank a > rank b then Node (rank b + 1) x a b
+                                 else Node (rank a + 1) x b a
+
+elimdup ( Node k c a b) = merge' ( Node 1 c E E) (merge' a b)
+
+--merge' :: Heap a -> Heap a -> Heap a
+merge' h1 E = cleanup h1
+merge' E h2 = cleanup h2
+merge' h1@(Node _ x l1 r1) h2@(Node _ y l2 r2) | x < y = makeH x l1 (merge' r1 h2)
+                                         | x > y = makeH y l2 (merge' r2 h1)
+                                         | otherwise = merge' (merge' l1 r1) h2 
+
+cleanup (Node k x a b) = merge' (Node 1 x E E) (merge' a b)
+
+-- de heap a lista
 
 heap2list E = []
 heap2list (Node _ x l r) = x ++ heap2list r ++ heap2list l
@@ -101,7 +118,7 @@ rangos  E _ = False
 rangos (Node ran a l r) (Node ran2 a2 l2 r2) = ran >=  ran2 
 
 
-{-
+{-  Ejercicios sobre red black tree
 data RBT a = Erb | T Color (RBT a) a (RBT a) deriving Show
 data Color =  Rojo | B   deriving Show
 
@@ -143,24 +160,4 @@ altB (T B l _ r) = min (1 + altB l) (1 + altB r )
 altB (T Rojo l _ r) = min (altB l) (altB r )
              
 verificarRBT tree@(T colores l _ r) = altB l == altB r && isRedBlackTree tree && check tree
-
-
-
---rank :: Heap a -> Rank
-rank E = 0
-rank (Node r _ _ _ ) = r
-
-makeH x a b = if rank a > rank b then Node (rank b + 1) x a b
-                                 else Node (rank a + 1) x b a
-
-elimdup ( Node k c a b) = merge' ( Node 1 c E E) (merge' a b)
-
---merge' :: Heap a -> Heap a -> Heap a
-merge' h1 E = cleanup h1
-merge' E h2 = cleanup h2
-merge' h1@(Node _ x l1 r1) h2@(Node _ y l2 r2) | x < y = makeH x l1 (merge' r1 h2)
-                                         | x > y = makeH y l2 (merge' r2 h1)
-                                         | otherwise = merge' (merge' l1 r1) h2 
-
-cleanup (Node k x a b) = merge' (Node 1 x E E) (merge' a b)
 -}
